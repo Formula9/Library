@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         beStrictAboutOutputDuringTests="false"
+         bootstrap="tests/support/boot.php"
+         colors="true"
+         convertErrorsToExceptions="false"
+         convertNoticesToExceptions="false"
+         convertWarningsToExceptions="false"
+         processIsolation="false"
+         stopOnFailure="true"
+         syntaxCheck="true"
+>
+    <testsuites>
+        <testsuite name="Formula 9 Library Test Suite">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <!-- DO NOT SET TO "true" CODE COVERAGE WILL BREAK -->
+        <whitelist addUncoveredFilesFromWhitelist="false">
+            <exclude>
+                <directory suffix=".php">./vendor</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+</phpunit>
