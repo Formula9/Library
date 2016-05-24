@@ -1,15 +1,14 @@
 <?php namespace Nine\Library;
 
-/**
- * Globally accessible convenience functions.
- *
- * @package Nine Collections
- * @version 0.4.2
- * @author  Greg Truesdell <odd.greg@gmail.com>
- */
+    /**
+     * Globally accessible convenience functions.
+     *
+     * @package Nine Collections
+     * @version 0.4.2
+     * @author  Greg Truesdell <odd.greg@gmail.com>
+     */
 
-use Closure;
-use Nine\Collections\Collection;
+//use Closure;
 
 if (PHP_VERSION_ID < 70000) {
     echo('Formula 9 requires PHP versions >= 7.0.0');
@@ -21,35 +20,6 @@ if (defined('HELPERS_LOADED')) {
 }
 
 define('HELPERS_LOADED', TRUE);
-
-if ( ! function_exists('array_accept')) {
-    /**
-     * Get all of the given array except for a specified array of items.
-     *
-     * @param  array|string $keys
-     * @param  array        $array
-     *
-     * @return array
-     */
-    function array_except($array, $keys)
-    {
-        return array_diff_key($array, array_flip((array) $keys));
-    }
-}
-
-if ( ! function_exists('collect')) {
-    /**
-     * Returns a collection containing the array values provided.
-     *
-     * @param array $array
-     *
-     * @return Collection
-     */
-    function collect(array $array)
-    {
-        return new Collection($array);
-    }
-}
 
 if ( ! function_exists('e')) {
     /**
@@ -122,98 +92,6 @@ if ( ! function_exists('env')) {
     }
 }
 
-if ( ! function_exists('pad_left')) {
-
-    /**
-     * Left-pad a string
-     *
-     * @param string $str
-     * @param int    $length
-     * @param string $space
-     *
-     * @return string
-     */
-    function pad_left($str, $length = 0, $space = ' ')
-    {
-        return str_pad($str, $length, $space, STR_PAD_LEFT);
-    }
-}
-
-if ( ! function_exists('pad_right')) {
-
-    /**
-     * Left-pad a string
-     *
-     * @param string $str
-     * @param int    $length
-     * @param string $space
-     *
-     * @return string
-     */
-    function pad_right($str, $length = 0, $space = ' ')
-    {
-        return str_pad($str, $length, $space, STR_PAD_RIGHT);
-    }
-}
-
-if ( ! function_exists('memoize')) {
-    /**
-     * Cache repeated function results.
-     *
-     * @param $lambda - the function whose results we cache.
-     *
-     * @return Closure
-     */
-    function memoize($lambda)
-    {
-        return function () use ($lambda) {
-            # results cache
-            static $results = [];
-
-            # collect arguments and serialize the key
-            $args = func_get_args();
-            $key = serialize($args);
-
-            # if the key result is not cached then cache it
-            if (empty($results[$key])) {
-                $results[$key] = call_user_func_array($lambda, $args);
-            }
-
-            return $results[$key];
-        };
-    }
-}
-
-if ( ! function_exists('is_not')) {
-
-    function is_not($subject)
-    {
-        return ! $subject;
-    }
-}
-
-if ( ! function_exists('partial')) {
-    /**
-     * Curry a function.
-     *
-     * @param $lambda - the function to curry.
-     * @param $arg    - the first or only argument
-     *
-     * @return Closure
-     */
-    function partial($lambda, $arg)
-    {
-        $func_args = func_get_args();
-        $args = array_slice($func_args, 1);
-
-        return function () use ($lambda, $args) {
-            $full_args = array_merge($args, func_get_args());
-
-            return call_user_func_array($lambda, $full_args);
-        };
-    }
-}
-
 if ( ! function_exists('value')) {
     /**
      *  Returns value of a variable. Resolves closures.
@@ -224,103 +102,11 @@ if ( ! function_exists('value')) {
      */
     function value($value)
     {
-        return $value instanceof Closure ? $value() : $value;
+        return $value instanceof \Closure || is_callable($value) ? $value() : $value;
     }
 }
 
-if ( ! function_exists('throw_now')) {
-
-    /**
-     * @param $exception
-     * @param $message
-     *
-     * @return null
-     */
-    function throw_now($exception, $message)
-    {
-        throw new $exception($message);
-    }
-}
-
-if ( ! function_exists('throw_if')) {
-    /**
-     * @param string  $exception
-     * @param string  $message
-     * @param boolean $if
-     */
-    function throw_if($if, $exception, $message)
-    {
-        if ($if) {
-            throw new $exception($message);
-        }
-    }
-}
-
-if ( ! function_exists('throw_if_not')) {
-    /**
-     * @param string  $exception
-     * @param string  $message
-     * @param boolean $if
-     */
-    function throw_if_not($if, $exception, $message)
-    {
-        if ( ! $if) {
-            throw new $exception($message);
-        }
-    }
-}
-
-if ( ! function_exists('tail')) {
-    // blatantly stolen from Ionuț G. Stan on stack overflow
-    function tail($filename)
-    {
-        $line = '';
-
-        $f = fopen(realpath($filename), 'r');
-        $cursor = -1;
-
-        fseek($f, $cursor, SEEK_END);
-        $char = fgetc($f);
-
-        /**
-         * Trim trailing newline chars of the file
-         */
-        while ($char === "\n" || $char === "\r") {
-            fseek($f, $cursor--, SEEK_END);
-            $char = fgetc($f);
-        }
-
-        /**
-         * Read until the start of file or first newline char
-         */
-        while ($char !== FALSE && $char !== "\n" && $char !== "\r") {
-            /**
-             * Prepend the new char
-             */
-            $line = $char . $line;
-            fseek($f, $cursor--, SEEK_END);
-            $char = fgetc($f);
-        }
-
-        return $line;
-    }
-}
-
-if ( ! function_exists('dd')) {
-
-    /**
-     * Override Illuminate dd()
-     *
-     * @param null $value
-     * @param int  $depth
-     */
-    function dd($value = NULL, $depth = 8)
-    {
-        ddump($value, $depth);
-    }
-}
-
-if ( ! function_exists('w')) {
+if ( ! function_exists('words')) {
 
     /**
      * Converts a string of space or tab delimited words as an array.
@@ -336,13 +122,13 @@ if ( ! function_exists('w')) {
      *
      * @return array
      */
-    function w($words, $delimiter = ' ')
+    function words($words, $delimiter = ' ')
     {
         return explode($delimiter, preg_replace('/\s+/', ' ', $words));
     }
 }
 
-if ( ! function_exists('ww')) {
+if ( ! function_exists('tuples')) {
 
     /**
      * Converts an encoded string to an associative array.
@@ -356,7 +142,7 @@ if ( ! function_exists('ww')) {
      */
     function tuples($encoded_string)
     {
-        $array = w($encoded_string, ',');
+        $array = words($encoded_string, ',');
         $result = [];
 
         foreach ($array as $tuple) {

@@ -24,7 +24,7 @@ trait Arrays
      *
      * @return bool
      */
-    public static function accessible($value)
+    public static function array_accessible($value)
     {
         return is_array($value) || $value instanceof ArrayAccess;
     }
@@ -72,37 +72,6 @@ trait Arrays
         }
 
         return $results;
-    }
-
-    /**
-     * **Divide an array into two arrays. One with keys and the other with values.**
-     *
-     * <pre>
-     * example 1:
-     * given:   ['one'=>1,'two'=>2,'three'=>3,'four'=>4,'five'=>5,'six'=>6]
-     * result:  [
-     *              ['one', 'two', 'three', 'four', 'five', 'six',],
-     *              [1, 2, 3, 4, 5, 6],
-     *          ]
-     *
-     * example 2:
-     * given:   [['one' => 1, 'two' => 2], ['three' => 3, 'four' => 4], ['five' => 5, 'six' => 6]]
-     * result:  [
-     *              0 => [0, 1, 2,],
-     *              1 => [
-     *                      ['one' => 1, 'two' => 2,],
-     *                      ['three' => 3, 'four' => 4,],
-     *                      ['five' => 5, 'six' => 6,],
-     *                   ],
-     *          ]</pre>
-     *
-     * @param  array $array
-     *
-     * @return array
-     */
-    public static function array_divide($array)
-    {
-        return [array_keys($array), array_values($array)];
     }
 
     /**
@@ -181,7 +150,7 @@ trait Arrays
      *
      * @return mixed
      */
-    public static function array_first($haystack, callable $callback, $default = NULL)
+    public static function array_first_match($haystack, callable $callback, $default = NULL)
     {
         foreach ($haystack as $key => $value) {
             if ($callback($key, $value)) {
@@ -444,7 +413,7 @@ trait Arrays
      */
     public static function array_last($array, callable $callback, $default = NULL)
     {
-        return static::array_first(array_reverse($array), $callback, $default);
+        return static::array_first_match(array_reverse($array), $callback, $default);
     }
 
     /**
@@ -847,7 +816,7 @@ trait Arrays
                 return in_array('*', $key, TRUE) ? static::collapse($result) : $result;
             }
 
-            if (static::accessible($target) && static::exists($target, $segment)) {
+            if (static::array_accessible($target) && static::exists($target, $segment)) {
                 $target = $target[$segment];
             }
             elseif (is_object($target) && isset($target->{$segment})) {
@@ -878,7 +847,7 @@ trait Arrays
         if (($segment = array_shift($segments)) === '*') {
             /** @noinspection NotOptimalIfConditionsInspection */
             /** @noinspection ReferenceMismatchInspection */
-            if ( ! static::accessible($target)) {
+            if ( ! static::array_accessible($target)) {
                 $target = [];
             }
 
@@ -895,7 +864,7 @@ trait Arrays
             }
         }
         /** @noinspection ReferenceMismatchInspection */
-        elseif (static::accessible($target)) {
+        elseif (static::array_accessible($target)) {
             if ($segments) {
                 /** @noinspection ReferenceMismatchInspection */
                 if ( ! static::exists($target, $segment)) {
