@@ -6,7 +6,6 @@
  * @author  Greg Truesdell <odd.greg@gmail.com>
  */
 use ArrayAccess;
-use Nine\Collections\Collection;
 
 /**
  * **Arrays is a compendium of array functions, supplied as static methods,
@@ -99,6 +98,66 @@ trait Arrays
     }
 
     /**
+     * **Transforms a single dimension array to a key:pair associative array.**
+     *
+     * Each element of the source is transformed to `<value> => <default>`.
+     *
+     * <pre>
+     * given:   $test = ['a','b','c','d','e']
+     *
+     * call:    var_export(Lib::array_transform($test, ''))
+     *
+     * result:  array ('a'=>'','b'=>'','c'=>'','d'=>'','e'=>'',)</pre>
+     *
+     * @param array      $source
+     * @param null|mixed $default
+     *
+     * @return array
+     */
+    public static function array_expand(array $source, $default = NULL)
+    {
+        $transform = [];
+        foreach ($source as $var)
+            $transform[$var] = $default;
+
+        return $transform;
+    }
+
+    /**
+     * **Pluck an array of values from an array.**
+     *
+     * @param  array             $array
+     * @param  string|array      $value
+     * @param  string|array|null $key
+     *
+     * @return array
+     */
+    public static function array_extract($array, $value, $key = NULL)
+    {
+        $results = [];
+
+        list($value, $key) = static::explode_extract_parameters($value, $key);
+
+        foreach ($array as $item) {
+            $itemValue = static::data_get($item, $value);
+
+            // If the key is "null", we will just append the value to the array and keep
+            // looping. Otherwise we will key the array using the value of the key we
+            // received from the developer. Then we'll return the final array form.
+            if (NULL === $key) {
+                $results[] = $itemValue;
+            }
+            else {
+                $itemKey = static::data_get($item, $key);
+
+                $results[$itemKey] = $itemValue;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * **Fetch a flattened array of a nested array element.**
      *
      * <pre>
@@ -159,32 +218,6 @@ trait Arrays
         }
 
         return value($default);
-    }
-
-    /**
-     * **Transforms a single dimension array to a key:pair associative array.**
-     *
-     * Each element of the source is transformed to `<value> => <default>`.
-     *
-     * <pre>
-     * given:   $test = ['a','b','c','d','e']
-     *
-     * call:    var_export(Lib::array_transform($test, ''))
-     *
-     * result:  array ('a'=>'','b'=>'','c'=>'','d'=>'','e'=>'',)</pre>
-     *
-     * @param array      $source
-     * @param null|mixed $default
-     *
-     * @return array
-     */
-    public static function array_flat_to_assoc(array $source, $default = NULL)
-    {
-        $transform = [];
-        foreach ($source as $var)
-            $transform[$var] = $default;
-
-        return $transform;
     }
 
     /**
@@ -303,6 +336,21 @@ trait Arrays
     }
 
     /**
+     * **Converts a string of space or tab delimited words as an array.**
+     *
+     * Multiple whitespace between words is converted to a single space.
+     *
+     * @param        $words
+     * @param string $delimiter
+     *
+     * @return array
+     */
+    public static function array_from_string($words, $delimiter = ' ')
+    {
+        return explode($delimiter, preg_replace('/\s+/', ' ', $words));
+    }
+
+    /**
      * **Get an item from an array using "dot" notation.**
      *
      * @param  array  $array
@@ -414,40 +462,6 @@ trait Arrays
     public static function array_last($array, callable $callback, $default = NULL)
     {
         return static::array_first_match(array_reverse($array), $callback, $default);
-    }
-
-    /**
-     * **Pluck an array of values from an array.**
-     *
-     * @param  array             $array
-     * @param  string|array      $value
-     * @param  string|array|null $key
-     *
-     * @return array
-     */
-    public static function array_pluck($array, $value, $key = NULL)
-    {
-        $results = [];
-
-        list($value, $key) = static::explodePluckParameters($value, $key);
-
-        foreach ($array as $item) {
-            $itemValue = static::data_get($item, $value);
-
-            // If the key is "null", we will just append the value to the array and keep
-            // looping. Otherwise we will key the array using the value of the key we
-            // received from the developer. Then we'll return the final array form.
-            if (NULL === $key) {
-                $results[] = $itemValue;
-            }
-            else {
-                $itemKey = static::data_get($item, $key);
-
-                $results[$itemKey] = $itemValue;
-            }
-        }
-
-        return $results;
     }
 
     /**
@@ -715,7 +729,7 @@ trait Arrays
      */
     public static function assoc_from_str($tuples)
     {
-        $array = self::str_to_a($tuples, ',');
+        $array = self::array_from_string($tuples, ',');
         $result = [];
 
         foreach ($array as $tuple) {
@@ -771,8 +785,8 @@ trait Arrays
         $results = [];
 
         foreach ($array as $values) {
-            if ($values instanceof Collection) {
-                $values = $values->all();
+            if (is_object($values) and method_exists($values, 'toArray')) {
+                $values = $values->toArray();
             }
             elseif ( ! is_array($values)) {
                 continue;
@@ -804,19 +818,19 @@ trait Arrays
 
         while (($segment = array_shift($key)) !== NULL) {
             if ($segment === '*') {
-                if ($target instanceof Collection) {
+                if (is_object($target) and method_exists($target, 'toArray')) {
                     $target = $target->all();
                 }
                 elseif ( ! is_array($target)) {
                     return value($default);
                 }
 
-                $result = static::pluck($target, $key);
+                $result = static::array_extract($target, $key);
 
                 return in_array('*', $key, TRUE) ? static::collapse($result) : $result;
             }
 
-            if (static::array_accessible($target) && static::exists($target, $segment)) {
+            if (static::array_accessible($target) && static::key_exists($target, $segment)) {
                 $target = $target[$segment];
             }
             elseif (is_object($target) && isset($target->{$segment})) {
@@ -867,14 +881,14 @@ trait Arrays
         elseif (static::array_accessible($target)) {
             if ($segments) {
                 /** @noinspection ReferenceMismatchInspection */
-                if ( ! static::exists($target, $segment)) {
+                if ( ! static::key_exists($target, $segment)) {
                     $target[$segment] = [];
                 }
 
                 static::data_set($target[$segment], $segments, $value, $overwrite);
             }
             /** @noinspection ReferenceMismatchInspection */
-            elseif ($overwrite || ! static::exists($target, $segment)) {
+            elseif ($overwrite || ! static::key_exists($target, $segment)) {
                 $target[$segment] = $value;
             }
         }
@@ -892,23 +906,6 @@ trait Arrays
         }
 
         return $target;
-    }
-
-    /**
-     * **Determine if the given key exists in the provided array.**
-     *
-     * @param  \ArrayAccess|array $array
-     * @param  string|int         $key
-     *
-     * @return bool
-     */
-    public static function exists($array, $key)
-    {
-        if ($array instanceof ArrayAccess) {
-            return $array->offsetExists($key);
-        }
-
-        return array_key_exists($key, $array);
     }
 
     /**
@@ -1065,6 +1062,23 @@ trait Arrays
     }
 
     /**
+     * **Determine if the given key exists in the provided array.**
+     *
+     * @param  \ArrayAccess|array $array
+     * @param  string|int         $key
+     *
+     * @return bool
+     */
+    public static function key_exists($array, $key)
+    {
+        if ($array instanceof ArrayAccess) {
+            return $array->offsetExists($key);
+        }
+
+        return array_key_exists($key, $array);
+    }
+
+    /**
      * **Converts a associative array of key,value pairs to SQL query comparisons.**
      *
      * ie: ['a' => 4, 'b' => 'open'] -> [0 => "a=`4`", 1 => "b=`open`"]
@@ -1169,55 +1183,6 @@ trait Arrays
         }
 
         return $output;
-    }
-
-    /**
-     * **Pluck an array of values from an array.**
-     *
-     * @param  array             $array
-     * @param  string|array      $value
-     * @param  string|array|null $key
-     *
-     * @return array
-     */
-    public static function pluck($array, $value, $key = NULL)
-    {
-        $results = [];
-
-        list($value, $key) = static::explodePluckParameters($value, $key);
-
-        foreach ($array as $item) {
-            $itemValue = static::data_get($item, $value);
-
-            // If the key is "null", we will just append the value to the array and keep
-            // looping. Otherwise we will key the array using the value of the key we
-            // received from the developer. Then we'll return the final array form.
-            if (NULL === $key) {
-                $results[] = $itemValue;
-            }
-            else {
-                $itemKey = static::data_get($item, $key);
-
-                $results[$itemKey] = $itemValue;
-            }
-        }
-
-        return $results;
-    }
-
-    /**
-     * **Converts a string of space or tab delimited words as an array.**
-     *
-     * Multiple whitespace between words is converted to a single space.
-     *
-     * @param        $words
-     * @param string $delimiter
-     *
-     * @return array
-     */
-    public static function str_to_a($words, $delimiter = ' ')
-    {
-        return explode($delimiter, preg_replace('/\s+/', ' ', $words));
     }
 
     /**
@@ -1336,7 +1301,7 @@ trait Arrays
      *
      * @return array
      */
-    protected static function explodePluckParameters($value, $key)
+    protected static function explode_extract_parameters($value, $key)
     {
         $value = is_string($value) ? explode('.', $value) : $value;
         $key = (NULL === $key || is_array($key)) ? $key : explode('.', $key);

@@ -127,7 +127,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'candy.start',
                 'candy.end',
             ],
-            Lib::str_to_a('apples beets candy.start candy.end')
+            Lib::array_from_string('apples beets candy.start candy.end')
         );
 
         ### s_to_aa - string to associative array
@@ -286,7 +286,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 0 => 'one',
                 1 => 'two',
             ],
-            Lib::array_to_numeric_index(Lib::str_to_a('one two'))
+            Lib::array_to_numeric_index(Lib::array_from_string('one two'))
         );
 
         ### get_array_value_safely($index, $array)
