@@ -19,6 +19,7 @@
     <filter>
         <!-- DO NOT SET TO "true" CODE COVERAGE WILL BREAK -->
         <whitelist addUncoveredFilesFromWhitelist="false">
+            <directory suffix=".php">./src</directory>
             <exclude>
                 <directory suffix=".php">./vendor</directory>
             </exclude>
