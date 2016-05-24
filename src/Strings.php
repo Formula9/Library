@@ -66,18 +66,6 @@ trait Strings
     }
 
     /**
-     * **Returns a string converted with `htmlentities`.**
-     *
-     * @param  string $value
-     *
-     * @return string
-     */
-    public static function e($value)
-    {
-        return htmlentities($value, ENT_QUOTES, 'UTF-8', FALSE);
-    }
-
-    /**
      * **A simple readable json encoding utility.**
      *
      * @author   bohwaz <http://php.net/manual/en/function.json-encode.php#102091>
@@ -147,6 +135,18 @@ trait Strings
     }
 
     /**
+     * **Returns a string converted with `htmlentities`.**
+     *
+     * @param  string $value
+     *
+     * @return string
+     */
+    public static function entities($value)
+    {
+        return htmlentities($value, ENT_QUOTES, 'UTF-8', FALSE);
+    }
+
+    /**
      * **Searches a set of directories for the given filename.**
      *
      * @param string $name  name and extension part of file path
@@ -191,6 +191,22 @@ trait Strings
     }
 
     /**
+     * **Accept a class or class name and return the class name.**
+     *
+     * On the surface, this seems like an odd idea. However, this function's
+     * purpose is to always return a class name string -- whether the
+     * arguments is already a string or a object.
+     *
+     * @param mixed $class
+     *
+     * @return string
+     */
+    public static function get_class_name($class)
+    {
+        return is_string($class) ? $class : get_class($class);
+    }
+
+    /**
      * **Shortcut to `htmlspecialchars`. UTF-8 aware.**
      *
      * <pre>example:
@@ -203,102 +219,9 @@ trait Strings
      *
      * @return string
      */
-    public static function h($string, $double_encode = TRUE)
+    public static function hsc($string, $double_encode = TRUE)
     {
         return htmlspecialchars($string, ENT_COMPAT | ENT_HTML5, 'UTF-8', $double_encode);
-    }
-
-    /**
-     * **Return the HTML error text for a given code.**
-     *
-     * <pre>example:
-     *      call:   html_code(404)
-     *
-     *      result: "404 Not Found"</pre>
-     *
-     * @param integer|string      $error_code
-     * @param null|string|integer $default
-     *
-     * @return int|string
-     */
-    public static function http_error_from_code($error_code, $default = NULL)
-    {
-        static $statusTexts = [
-            000 => 'Unknown Error',
-            100 => 'Continue',
-            101 => 'Switching Protocols',
-            102 => 'Processing',            // RFC2518
-            200 => 'OK',
-            201 => 'Created',
-            202 => 'Accepted',
-            203 => 'Non-Authoritative Information',
-            204 => 'No Content',
-            205 => 'Reset Content',
-            206 => 'Partial Content',
-            207 => 'Multi-Status',          // RFC4918
-            208 => 'Already Reported',      // RFC5842
-            226 => 'IM Used',               // RFC3229
-            300 => 'Multiple Choices',
-            301 => 'Moved Permanently',
-            302 => 'Found',
-            303 => 'See Other',
-            304 => 'Not Modified',
-            305 => 'Use Proxy',
-            306 => 'Reserved',
-            307 => 'Temporary Redirect',
-            308 => 'Permanent Redirect',    // RFC7238
-            400 => 'Bad Request',
-            401 => 'Unauthorized',
-            402 => 'Payment Required',
-            403 => 'Forbidden',
-            404 => 'Not Found',
-            405 => 'Method Not Allowed',
-            406 => 'Not Acceptable',
-            407 => 'Proxy Authentication Required',
-            408 => 'Request Timeout',
-            409 => 'Conflict',
-            410 => 'Gone',
-            411 => 'Length Required',
-            412 => 'Precondition Failed',
-            413 => 'Request Entity Too Large',
-            414 => 'Request-URI Too Long',
-            415 => 'Unsupported Media Type',
-            416 => 'Requested Range Not Satisfiable',
-            417 => 'Expectation Failed',
-            418 => 'I\'m a teapot',                                               // RFC2324
-            422 => 'Unprocessable Entity',                                        // RFC4918
-            423 => 'Locked',                                                      // RFC4918
-            424 => 'Failed Dependency',                                           // RFC4918
-            425 => 'Reserved for WebDAV advanced collections expired proposal',   // RFC2817
-            426 => 'Upgrade Required',                                            // RFC2817
-            428 => 'Precondition Required',                                       // RFC6585
-            429 => 'Too Many Requests',                                           // RFC6585
-            431 => 'Request Header Fields Too Large',                             // RFC6585
-            500 => 'Internal Server Error',
-            501 => 'Not Implemented',
-            502 => 'Bad Gateway',
-            503 => 'Service Unavailable',
-            504 => 'Gateway Timeout',
-            505 => 'HTTP Version Not Supported',
-            506 => 'Variant Also Negotiates (Experimental)',                      // RFC2295
-            507 => 'Insufficient Storage',                                        // RFC4918
-            508 => 'Loop Detected',                                               // RFC5842
-            510 => 'Not Extended',                                                // RFC2774
-            511 => 'Network Authentication Required',                             // RFC6585
-        ];
-
-        if (is_int($error_code)) {
-            return isset($statusTexts[$error_code]) ? "$error_code " . $statusTexts[$error_code] : $default;
-        }
-
-        $error_code = strtolower($error_code);
-        foreach ($statusTexts as $code => $text) {
-            if (self::starts_with($error_code, strtolower($text))) {
-                return $code;
-            }
-        }
-
-        return $default;
     }
 
     /**
@@ -461,7 +384,7 @@ trait Strings
      *
      * @return string
      */
-    public static function snake_to_text($word, $space = ' ')
+    public static function snake_to_heading($word, $space = ' ')
     {
         $prep = ucwords(str_replace('_', ' ', $word));
 
@@ -488,19 +411,21 @@ trait Strings
     }
 
     /**
-     * **Accept a class or class name and return the class name.**
+     * **Tests whether a substring exists in a string**
      *
-     * On the surface, this seems like an odd idea. However, this function's
-     * purpose is to always return a class name string -- whether the
-     * arguments is already a string or a object.
+     * @param string $substring
+     * @param string $string
      *
-     * @param mixed $class
-     *
-     * @return string
+     * @return bool
      */
-    public static function str_class_name($class)
+    public static function str_has($substring, $string)
     {
-        return is_string($class) ? $class : get_class($class);
+        foreach ((array) $substring as $needle)
+            if ($needle !== '' && strpos($string, $needle) !== FALSE) {
+                return TRUE;
+            }
+
+        return FALSE;
     }
 
     /**
@@ -554,24 +479,6 @@ trait Strings
         $string = trim($string, '-');
 
         return $string;
-    }
-
-    /**
-     * **Tests whether a substring exists in a string**
-     *
-     * @param string $substring
-     * @param string $string
-     *
-     * @return bool
-     */
-    public static function string_has($substring, $string)
-    {
-        foreach ((array) $substring as $needle)
-            if ($needle !== '' && strpos($string, $needle) !== FALSE) {
-                return TRUE;
-            }
-
-        return FALSE;
     }
 
     /**

@@ -23,8 +23,8 @@ class StringHelpersTest extends \PHPUnit_Framework_TestCase
     {
         ### contains($needles, $haystack)
 
-        $this->assertTrue(Lib::string_has('this exists', 'Testing to see if this exists.'));
-        $this->assertFalse(Lib::string_has('this does not exist', 'Testing to see if this exists.'));
+        $this->assertTrue(Lib::str_has('this exists', 'Testing to see if this exists.'));
+        $this->assertFalse(Lib::str_has('this does not exist', 'Testing to see if this exists.'));
 
         ### slug_to_title($slug)
 
@@ -75,8 +75,8 @@ class StringHelpersTest extends \PHPUnit_Framework_TestCase
     {
         ### snakecase_to_heading($word, $space = ' ')
 
-        $this->assertEquals('No Way Bob', Lib::snake_to_text('no_way_bob'));
-        $this->assertEquals('No&nbsp;Way&nbsp;Bob', Lib::snake_to_text('no_way_bob', '&nbsp;'));
+        $this->assertEquals('No Way Bob', Lib::snake_to_heading('no_way_bob'));
+        $this->assertEquals('No&nbsp;Way&nbsp;Bob', Lib::snake_to_heading('no_way_bob', '&nbsp;'));
 
         ### snakecase_to_camelcase($string)
 
@@ -102,12 +102,12 @@ class StringHelpersTest extends \PHPUnit_Framework_TestCase
 
         ### e($value)
 
-        $this->assertEquals('A &#039;quote&#039; is &lt;b&gt;bold&lt;/b&gt;', Lib::e("A 'quote' is <b>bold</b>"));
+        $this->assertEquals('A &#039;quote&#039; is &lt;b&gt;bold&lt;/b&gt;', Lib::entities("A 'quote' is <b>bold</b>"));
 
         ### h($string, $double_encode = TRUE)
 
         /** @noinspection HtmlUnknownTarget */
-        $this->assertEquals("&lt;a href='test'&gt;Test&lt;/a&gt;", Lib::h("<a href='test'>Test</a>"));
+        $this->assertEquals("&lt;a href='test'&gt;Test&lt;/a&gt;", Lib::hsc("<a href='test'>Test</a>"));
 
     }
 
@@ -154,9 +154,9 @@ class StringHelpersTest extends \PHPUnit_Framework_TestCase
     {
         ### http_code($key, $default = NULL)
 
-        $this->assertEquals('404 Not Found', Lib::http_error_from_code(404));
-        $this->assertEquals(502, Lib::http_error_from_code('Bad Gateway'));
-        $this->assertEquals(900, Lib::http_error_from_code('Purple Rain', 900));
+        //$this->assertEquals('404 Not Found', Lib::http_error_from_code(404));
+        //$this->assertEquals(502, Lib::http_error_from_code('Bad Gateway'));
+        //$this->assertEquals(900, Lib::http_error_from_code('Purple Rain', 900));
 
         ### file_in_path($name, Array $paths)
 
