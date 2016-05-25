@@ -330,7 +330,7 @@ trait Strings
      *
      * @return string URL-safe string
      */
-    public static function str_to_uri($string)
+    public static function string_to_uri($string)
     {
         // Allow only alphanumerics, underscores and dashes
         $string = preg_replace('/([^a-zA-Z0-9_\-]+)/', '-', strtolower($string));

@@ -1,12 +1,4 @@
-<?php namespace Nine;
-
-/**
- * @package Nine
- * @author  Greg Truesdell <odd.greg@gmail.com>
- */
-
-//use Forge;
-use Nine\Library\Lib;
+<?php namespace Nine\Library;
 
 /**
  * Test the framework support functions
@@ -35,22 +27,22 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
     {
         ### array_to_object
 
-        $obj = Lib::cast_array_to_object($this->source_array);
+        $obj = Support::cast_array_to_object($this->source_array);
         static::assertEquals($obj->Apples, $this->source_array['Apples']);
 
         ### object_to_array
 
-        $array = Lib::cast_object_as_array($obj);
+        $array = Support::cast_object_as_array($obj);
         static::assertEquals($this->source_array, $array);
 
         ### copy_object_to_array
 
-        $obj2 = Lib::cast_array_to_object(
+        $obj2 = Support::cast_array_to_object(
             [
                 'a' => 'not much',
             ]
         );
-        $obj1 = Lib::cast_array_to_object(
+        $obj1 = Support::cast_array_to_object(
             [
                 'apples'      => 10,
                 'beets'       => 'nope',
@@ -59,7 +51,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'value_obj'   => $obj2,
             ]
         );
-        $obj_array = Lib::array_from_object($obj1);
+        $obj_array = Arrays::array_from_object($obj1);
         static::assertEquals(
             [
                 'apples'      => 10,
@@ -80,7 +72,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'Beef'   => ['hamburger', 'roast beef'],
                 'Candy'  => ['start' => 'now', 'end' => 'then'],
             ],
-            Lib::insert_before('Candy', $this->source_array, 'Beef', ['hamburger', 'roast beef'])
+            Arrays::insert_before('Candy', $this->source_array, 'Beef', ['hamburger', 'roast beef'])
         );
 
         ### array_except($array, $keys)
@@ -90,7 +82,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'Apples' => 'One',
                 'Candy'  => ['start' => 'now', 'end' => 'then'],
             ],
-            Lib::array_except($this->source_array, ['Beets'])
+            Arrays::array_except($this->source_array, ['Beets'])
         );
 
         ### array_pull(&$array, $key, $default = NULL)
@@ -98,7 +90,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
         # copy the test array
         $worker = $this->source_array;
         # pull 'Beets' -> 2
-        static::assertEquals(2, Lib::array_pull($worker, 'Beets', $default = FALSE));
+        static::assertEquals(2, Arrays::array_pull($worker, 'Beets', $default = FALSE));
         # verify removed from original
         static::assertArrayNotHasKey('Beets', $worker);
 
@@ -115,7 +107,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'Candy.start' => 'now',
                 'Candy.end'   => 'then',
             ],
-            Lib::array_flatten($this->source_array)
+            Arrays::array_flatten($this->source_array)
         );
 
         ### s_to_a - string to array
@@ -127,7 +119,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'candy.start',
                 'candy.end',
             ],
-            Lib::array_from_string('apples beets candy.start candy.end')
+            Arrays::array_from_string('apples beets candy.start candy.end')
         );
 
         ### s_to_aa - string to associative array
@@ -139,7 +131,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'candy.start' => 'now',
                 'candy.end'   => 'never',
             ],
-            Lib::assoc_from_string('apples:10, beets:nope, candy.start:now, candy.end:never')
+            Arrays::assoc_from_string('apples:10, beets:nope, candy.start:now, candy.end:never')
         );
 
     }
@@ -150,7 +142,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
 
         # forget by single key
         $worker = $this->source_array;
-        Lib::array_forget($worker, 'Candy');
+        Arrays::array_forget($worker, 'Candy');
         static::assertEquals(
             [
                 'Apples' => 'One',
@@ -160,7 +152,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
         );
         # forget by dot path
         $worker = $this->source_array;
-        Lib::array_forget($worker, 'Candy.start');
+        Arrays::array_forget($worker, 'Candy.start');
         static::assertEquals(
             [
                 'Apples' => 'One',
@@ -176,38 +168,38 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
             'George' => ['age' => 26, 'gender' => 'Male'],
             'Lois'   => ['age' => 32, 'gender' => 'Female'],
         ];
-        static::assertEquals([26, 32], Lib::extract_column($records, 'age'));
+        static::assertEquals([26, 32], Arrays::extract_column($records, 'age'));
 
         ### (simple) array_make_compare_list(array $array)
 
-        $worker = Lib::assoc_from_string('name:Laura, access:Administrator');
+        $worker = Arrays::assoc_from_string('name:Laura, access:Administrator');
         static::assertEquals(
             [
                 'name=`Laura`',
                 'access=`Administrator`',
             ],
-            Lib::make_compare($worker)
+            Support::make_compare($worker)
         );
         # empty returns null
-        static::assertNull(Lib::make_compare([]));
+        static::assertNull(Support::make_compare([]));
         # list returns null on invalid array (must be associative)
-        static::assertNull(Lib::make_compare(['bad']));
+        static::assertNull(Support::make_compare(['bad']));
     }
 
     public function test04_PartFour()
     {
         ### array_fill_object($obj, $array)
 
-        $obj = Lib::cast_array_to_object(Lib::assoc_from_string('name:Greg, location:Vancouver, cat:Julius'));
+        $obj = Support::cast_array_to_object(Arrays::assoc_from_string('name:Greg, location:Vancouver, cat:Julius'));
         static::assertEquals(
             [
                 'name'     => 'Greg',
                 'location' => 'Vancouver',
                 'cat'      => 'Julius',
             ],
-            Lib::cast_object_as_array($obj)
+            Support::cast_object_as_array($obj)
         );
-        $obj = Lib::fill_object($obj, Lib::assoc_from_string('need:Coffee'));
+        $obj = Support::fill_object($obj, Arrays::assoc_from_string('need:Coffee'));
         static::assertEquals(
             [
                 'name'     => 'Greg',
@@ -215,7 +207,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 'cat'      => 'Julius',
                 'need'     => 'Coffee',
             ],
-            Lib::cast_object_as_array($obj));
+            Support::cast_object_as_array($obj));
 
     }
 
@@ -227,13 +219,13 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
 
         static::assertEquals(
             [
-                'stdClass' => Lib::assoc_from_string('one:1, two:2, three:3, four:4'),
+                'stdClass' => Arrays::assoc_from_string('one:1, two:2, three:3, four:4'),
             ],
-            Lib::value_class($obj, Lib::assoc_from_string('one:1, two:2, three:3, four:4'))
+            Support::value_class($obj, Arrays::assoc_from_string('one:1, two:2, three:3, four:4'))
         );
         # non-object returns null
         /** @noinspection PhpParamsInspection */
-        static::assertNull(Lib::value_class('not an object', Lib::assoc_from_string('one:1, two:2, three:3, four:4')));
+        static::assertNull(Support::value_class('not an object', Arrays::assoc_from_string('one:1, two:2, three:3, four:4')));
 
         ### pivot_array_on_index(array $input)
 
@@ -260,13 +252,13 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                         'http://yahoo.com',
                     ],
             ],
-            Lib::pivot_array($worker)
+            Arrays::pivot_array($worker)
         );
 
         ### array_get($array, $key, $default = NULL)
 
-        static::assertEquals('now', Lib::array_get($this->source_array, 'Candy.start'));
-        static::assertEquals('not found', Lib::array_get($this->source_array, 'Candy.nope', 'not found'));
+        static::assertEquals('now', Arrays::array_get($this->source_array, 'Candy.start'));
+        static::assertEquals('not found', Arrays::array_get($this->source_array, 'Candy.nope', 'not found'));
 
         ###  multi_explode(array $delimiters, $string, $trim)
 
@@ -276,7 +268,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 1 => ' Break it up',
                 2 => ' Ok?',
             ],
-            Lib::multi_explode('This is a string. Break it up! Ok?', ['.', '!'])
+            Arrays::multi_explode('This is a string. Break it up! Ok?', ['.', '!'])
         );
 
         ### convert_list_to_indexed_array($array)
@@ -286,7 +278,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
                 0 => 'one',
                 1 => 'two',
             ],
-            Lib::array_to_numeric_index(Lib::array_from_string('one two'))
+            Arrays::array_to_numeric_index(Arrays::array_from_string('one two'))
         );
 
         ### get_array_value_safely($index, $array)
@@ -296,9 +288,9 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
         //        'start' => 'now',
         //        'end'   => 'then',
         //    ],
-        //    Lib::get_array_value_safely('Candy', $this->source_array)
+        //    Arrays::get_array_value_safely('Candy', $this->source_array)
         //);
-        //static::assertNull(Lib::get_array_value_safely('does-not-exist', $this->source_array));
+        //static::assertNull(Arrays::get_array_value_safely('does-not-exist', $this->source_array));
 
     }
 
@@ -313,10 +305,10 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        static::assertEquals('not found', Lib::array_get($searchRA, 'record.lazy', 'not found'));
-        static::assertEquals($searchRA['record'], Lib::array_search_and_replace($searchRA, 'record.lazy', 'not found'));
-        static::assertEquals(26.58, Lib::array_get($searchRA, 'record.amount', 'not found'));
-        //static::assertEquals('not found', Lib::search('not.there', $searchRA, 'not found'));
+        static::assertEquals('not found', Arrays::array_get($searchRA, 'record.lazy', 'not found'));
+        static::assertEquals($searchRA['record'], Arrays::array_search_and_replace($searchRA, 'record.lazy', 'not found'));
+        static::assertEquals(26.58, Arrays::array_get($searchRA, 'record.amount', 'not found'));
+        //static::assertEquals('not found', Arrays::search('not.there', $searchRA, 'not found'));
 
         //ddump([$resultSearch, $resultGet]);
     }
