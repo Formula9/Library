@@ -1,10 +1,11 @@
 <?php namespace Nine\Library;
 
 /**
- * @package Nine
+ * @package Nine Library
  * @version 0.3.1
  * @author  Greg Truesdell <odd.greg@gmail.com>
  */
+
 use ArrayAccess;
 
 /**
@@ -139,7 +140,7 @@ trait Arrays
         list($value, $key) = static::explode_extract_parameters($value, $key);
 
         foreach ($array as $item) {
-            $itemValue = static::data_get($item, $value);
+            $itemValue = Support::data_get($item, $value);
 
             // If the key is "null", we will just append the value to the array and keep
             // looping. Otherwise we will key the array using the value of the key we
@@ -148,7 +149,7 @@ trait Arrays
                 $results[] = $itemValue;
             }
             else {
-                $itemKey = static::data_get($item, $key);
+                $itemKey = Support::data_get($item, $key);
 
                 $results[$itemKey] = $itemValue;
             }
@@ -443,7 +444,7 @@ trait Arrays
     {
         $result = [];
         foreach ($array as $element) {
-            $value = static::value($element, $key);
+            $value = Support::value($element, $key);
             $result[$value] = $element;
         }
 
@@ -727,7 +728,7 @@ trait Arrays
      *
      * @return array  - the constructed array
      */
-    public static function assoc_from_str($tuples)
+    public static function assoc_from_string($tuples)
     {
         $array = self::array_from_string($tuples, ',');
         $result = [];
@@ -742,35 +743,6 @@ trait Arrays
         }
 
         return $result;
-    }
-
-    /** @noinspection GenericObjectTypeUsageInspection
-     *
-     * **Typecast an array to an object.**
-     *
-     * Note: This is entirely redundant.
-     *
-     * @param $array
-     *
-     * @return object
-     */
-    public static function cast_array_to_object($array)
-    {
-        return (object) $array;
-    }
-
-    /**
-     * **Typecast an object to an array.**
-     *
-     * Note: This is entirely redundant.
-     *
-     * @param $object
-     *
-     * @return array
-     */
-    public static function cast_object_as_array($object)
-    {
-        return (array) $object;
     }
 
     /**
@@ -797,115 +769,6 @@ trait Arrays
         }
 
         return $results;
-    }
-
-    /**
-     * **Get an item from an array or object using "dot" notation.**
-     *
-     * @param  mixed        $target
-     * @param  string|array $key
-     * @param  mixed        $default
-     *
-     * @return mixed
-     */
-    public static function data_get($target, $key, $default = NULL)
-    {
-        if (NULL === $key) {
-            return $target;
-        }
-
-        $key = is_array($key) ? $key : explode('.', $key);
-
-        while (($segment = array_shift($key)) !== NULL) {
-            if ($segment === '*') {
-                if (is_object($target) and method_exists($target, 'toArray')) {
-                    $target = $target->all();
-                }
-                elseif ( ! is_array($target)) {
-                    return value($default);
-                }
-
-                $result = static::array_extract($target, $key);
-
-                return in_array('*', $key, TRUE) ? static::collapse($result) : $result;
-            }
-
-            if (static::array_accessible($target) && static::key_exists($target, $segment)) {
-                $target = $target[$segment];
-            }
-            elseif (is_object($target) && isset($target->{$segment})) {
-                $target = $target->{$segment};
-            }
-            else {
-                return value($default);
-            }
-        }
-
-        return $target;
-    }
-
-    /**
-     * **Set an item on an array or object using dot notation.**
-     *
-     * @param  mixed        $target
-     * @param  string|array $key
-     * @param  mixed        $value
-     * @param  bool         $overwrite
-     *
-     * @return mixed
-     */
-    public static function data_set(&$target, $key, $value, $overwrite = TRUE)
-    {
-        $segments = is_array($key) ? $key : explode('.', $key);
-
-        if (($segment = array_shift($segments)) === '*') {
-            /** @noinspection NotOptimalIfConditionsInspection */
-            /** @noinspection ReferenceMismatchInspection */
-            if ( ! static::array_accessible($target)) {
-                $target = [];
-            }
-
-            if ($segments) {
-                foreach ($target as &$inner) {
-                    static::data_set($inner, $segments, $value, $overwrite);
-                }
-            }
-            elseif ($overwrite) {
-                /** @noinspection ReferenceMismatchInspection */
-                foreach ($target as &$inner) {
-                    $inner = $value;
-                }
-            }
-        }
-        /** @noinspection ReferenceMismatchInspection */
-        elseif (static::array_accessible($target)) {
-            if ($segments) {
-                /** @noinspection ReferenceMismatchInspection */
-                if ( ! static::key_exists($target, $segment)) {
-                    $target[$segment] = [];
-                }
-
-                static::data_set($target[$segment], $segments, $value, $overwrite);
-            }
-            /** @noinspection ReferenceMismatchInspection */
-            elseif ($overwrite || ! static::key_exists($target, $segment)) {
-                $target[$segment] = $value;
-            }
-        }
-        elseif (is_object($target)) {
-            if ($segments) {
-                if ( ! isset($target->{$segment})) {
-                    $target->{$segment} = [];
-                }
-
-                static::data_set($target->{$segment}, $segments, $value, $overwrite);
-            }
-            elseif ($overwrite || ! isset($target->{$segment})) {
-                $target->{$segment} = $value;
-            }
-        }
-
-        return $target;
     }
 
     /**
@@ -956,23 +819,6 @@ trait Arrays
         }
 
         return $result;
-    }
-
-    /**
-     * **Fill an object from an array of qualified values.**
-     *
-     * @param $obj
-     * @param $array
-     *
-     * @return mixed
-     */
-    public static function fill_object($obj, $array)
-    {
-        foreach ($array as $property => $value) {
-            $obj->$property = $value;
-        }
-
-        return $obj;
     }
 
     /**
@@ -1079,29 +925,6 @@ trait Arrays
     }
 
     /**
-     * **Converts a associative array of key,value pairs to SQL query comparisons.**
-     *
-     * ie: ['a' => 4, 'b' => 'open'] -> [0 => "a=`4`", 1 => "b=`open`"]
-     *
-     * @param array $array
-     *
-     * @return array|null
-     */
-    public static function make_compare(array $array)
-    {
-        $list = [];
-
-        if (static::is_assoc($array)) {
-            foreach ($array as $key => $value)
-                $list[] = $key . '=`' . $value . '`';
-
-            return $list;
-        }
-
-        return NULL;
-    }
-
-    /**
      * **Merges any number of arrays of any dimension.**
      *
      * @module  arrays
@@ -1183,91 +1006,6 @@ trait Arrays
         }
 
         return $output;
-    }
-
-    /**
-     * **Retrieves the value of an array element or object property with the given key or property name.**
-     *
-     * If the key does not exist in the array or object, the default value will be returned instead.
-     *
-     * The key may be specified in a dot format to retrieve the value of a sub-array or the property
-     * of an embedded object. In particular, if the key is `x.y.z`, then the returned value would
-     * be `$array['x']['y']['z']` or `$array->x->y->z` (if `$array` is an object). If `$array['x']`
-     * or `$array->x` is neither an array nor an object, the default value will be returned.
-     * Note that if the array already has an element `x.y.z`, then its value will be returned
-     * instead of going through the sub-arrays.
-     *
-     * Below are some usage examples,
-     *
-     * ~~~
-     * // working with array
-     * $username = Arr::getValue($_POST, 'username');
-     *
-     * // working with object
-     * $username = Arr::getValue($user, 'username');
-     *
-     * // working with anonymous function
-     * $fullName = Arr::getValue($user, function ($user, $defaultValue) {
-     *     return $user->firstName . ' ' . $user->lastName;
-     * });
-     *
-     * // using dot format to retrieve the property of embedded object
-     * $street = Arr::getValue($users, 'address.street');
-     * ~~~
-     *
-     * @param array|mixed $array       array or object to extract value from
-     * @param string      $key         key name of the array element, or property name of the object,
-     *                                 or an anonymous function returning the value. The anonymous function signature
-     *                                 should be:
-     *                                 `function($array, $defaultValue)`.
-     * @param mixed       $default     the default value to be returned if the specified array key does not exist. Not
-     *                                 used when getting value from an object.
-     *
-     * @return mixed the value of the element if found, default value otherwise
-     */
-    public static function value($array, $key, $default = NULL)
-    {
-        if ($key instanceof \Closure or is_callable($key)) {
-            return $key($array, $default);
-        }
-
-        if (is_array($array) && array_key_exists($key, $array)) {
-            return $array[$key];
-        }
-
-        if (($pos = strrpos($key, '.')) !== FALSE) {
-            $array = static::value($array, substr($key, 0, $pos), $default);
-            $key = substr($key, $pos + 1);
-        }
-
-        if (is_object($array)) {
-            return $array->$key;
-        }
-        elseif (is_array($array)) {
-            return array_key_exists($key, $array) ? $array[$key] : $default;
-        }
-        else {
-            return $default;
-        }
-    }
-
-    /**
-     * **Return an array with the object name as the key.**
-     *
-     * @param       $object
-     * @param mixed $value
-     *
-     * @return array|null
-     */
-    public static function value_class($object, $value)
-    {
-        if (is_object($object)) {
-            $class = get_class($object);
-
-            return [$class => $value];
-        }
-
-        return NULL;
     }
 
     /**

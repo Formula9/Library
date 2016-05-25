@@ -14,5 +14,6 @@ final class Lib
 {
     use Arrays;
     use Strings;
+    use Support;
 }
 

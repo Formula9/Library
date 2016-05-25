@@ -1,11 +1,5 @@
 <?php namespace Nine\Library;
 
-    /**
-     * @package Nine
-     * @version 0.4.2
-     * @author  Greg Truesdell <odd.greg@gmail.com>
-     */
-
 /**
  * Strings is a compendium of string functions, supplied as static methods,
  * collected from a number of OSS sources or created for the project.
@@ -13,29 +7,13 @@
  * Several methods are included for compatibility (often as pseudonyms)
  * with imported or included packages.
  *
- * @package Nine\Support\Lib
+ * @package Nine Library
  * @version 0.4.2
+ * @author  Greg Truesdell <odd.greg@gmail.com>
  */
+
 trait Strings
 {
-    /**
-     * **Generates and alias name for a class, optionally removing a suffix.**
-     *
-     * <pre>example:
-     *      call:   alias_from_class('A\Namespace\ClassServiceProvider');
-     *
-     *      result: 'classserviceprovider'</pre>
-     *
-     * @param $class_name       - name of the class
-     * @param $suffix_to_remove - suffix to strip from class name
-     *
-     * @return string
-     */
-    public static function alias_from_class($class_name, $suffix_to_remove = '')
-    {
-        return strtolower(self::remove_namespace($class_name, $suffix_to_remove));
-    }
-
     /**
      * **Converts a CamelCase string to underscore_case.**
      *
@@ -147,66 +125,6 @@ trait Strings
     }
 
     /**
-     * **Searches a set of directories for the given filename.**
-     *
-     * @param string $name  name and extension part of file path
-     * @param array  $paths array of folders to search
-     *
-     * @return string complete path to file
-     */
-    public static function file_in_path($name, Array $paths)
-    {
-        $file_path = FALSE;
-
-        foreach ($paths as $path) {
-            if (file_exists($path . $name)) {
-                $file_path = $path . $name;
-                break;
-            }
-        }
-
-        return $file_path;
-    }
-
-    /**
-     * **Use `bin2hex` and `openssl_random_pseudo_bytes` to generate a unique token.**
-     *
-     * <pre>example 1:
-     *
-     *      call:   $lib->generate_token(32,'$salt$');
-     *
-     *      # note that the generated code will be different when you test this.
-     *      result: "$salt$b3ae000938fbd25639edbaf83b41be300b9426a156625f9e3998f6ab441048a7"</pre>
-     *
-     * @param int    $length
-     * @param string $preface
-     *
-     * @return string 32 character (16 bytes) string - unique for each run
-     */
-    public static function generate_token($length = 16, $preface = '')
-    {
-        $bh = bin2hex(openssl_random_pseudo_bytes($length));
-
-        return "{$preface}{$bh}";
-    }
-
-    /**
-     * **Accept a class or class name and return the class name.**
-     *
-     * On the surface, this seems like an odd idea. However, this function's
-     * purpose is to always return a class name string -- whether the
-     * arguments is already a string or a object.
-     *
-     * @param mixed $class
-     *
-     * @return string
-     */
-    public static function get_class_name($class)
-    {
-        return is_string($class) ? $class : get_class($class);
-    }
-
-    /**
      * **Shortcut to `htmlspecialchars`. UTF-8 aware.**
      *
      * <pre>example:
@@ -225,20 +143,6 @@ trait Strings
     }
 
     /**
-     * **Normalize a path by filtering through `realpath`.
-     *
-     * _Adds a trailing backslash._
-     *
-     * @param $path
-     *
-     * @return string
-     */
-    public static function normalize_path($path)
-    {
-        return self::strip_tail('/', realpath($path)) . '/';
-    }
-
-    /**
      * **Left-pad a string.**
      *
      * @param string $str
@@ -250,27 +154,6 @@ trait Strings
     public static function pad_left($str, $length = 0, $space = ' ')
     {
         return str_pad($str, $length, $space, STR_PAD_LEFT);
-    }
-
-    /**
-     * **Parse class name into namespace and class_name**
-     *
-     * _Modified version of a function found in the PHP docs._
-     *
-     * @param string $name
-     *
-     * @return array
-     */
-    public static function parse_class_name($name)
-    {
-        $namespace = array_slice(explode('\\', $name), 0, -1);
-
-        return [
-            'namespace'      => $namespace,
-            'class_name'     => implode('', array_slice(explode('\\', $name), -1)),
-            'namespace_path' => implode('\\', $namespace),
-            'namespace_base' => $namespace[0] ?? '',
-        ];
     }
 
     /**
@@ -296,25 +179,6 @@ trait Strings
         $pattern = str_replace('\*', '.*', $pattern) . '\z';
 
         return (bool) preg_match('#^' . $pattern . '#', $value);
-    }
-
-    /**
-     * **Removes the namespace from a class name.**
-     *
-     * @param string $class_name
-     * @param string $class_suffix
-     *
-     * @return mixed
-     */
-    public static function remove_namespace($class_name, $class_suffix = NULL)
-    {
-        $segments = explode('\\', $class_name);
-        $class = $segments[count($segments) - 1];
-        if ( ! is_null($class_suffix)) {
-            $class = str_ireplace($class_suffix, '', $class);
-        }
-
-        return $class;
     }
 
     /**
