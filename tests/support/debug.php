@@ -6,8 +6,7 @@
  * @author  Greg Truesdell <odd.greg@gmail.com>
  */
 
-use Nine\Collections\Scope;
-use Nine\Lib;
+use Nine\Library\Lib;
 
 if (defined('DEBUG_HELPERS_LOADED')) {
     return TRUE;
@@ -270,63 +269,5 @@ if ( ! function_exists('find_functions')) {
 
         sort($functionArray);
         return $functionArray;
-    }
-}
-
-if ( ! function_exists('document_functions')) {
-
-    function document_functions(array $functions)
-    {
-        $functions_list = [];
-
-        foreach ($functions as $func) {
-            $f = new ReflectionFunction($func);
-
-            $doc_comment = $f->getDocComment();
-
-            $args = [];
-
-            foreach ($f->getParameters() as $param) {
-                $temp_arg = '';
-
-                if ($param->isPassedByReference()) {
-                    $temp_arg = '&';
-                }
-
-                if ($param->isOptional()) {
-                    $display_value = $default_value = gettype($param->getDefaultValue());
-
-                    switch ($default_value) {
-                        case 'string':
-                            $display_value = "'" . $param->getDefaultValue() . "'";
-                            break;
-                        case 'array':
-                            $display_value = '[]';
-                            break;
-                        case 'integer':
-                            $display_value = $param->getDefaultValue();
-                            break;
-                        case 'boolean':
-                            $display_value = $param->getDefaultValue() ? 'true' : 'false';
-                            break;
-                        default :
-                            break;
-                    }
-
-                    $temp_arg = $temp_arg . '$' . $param->getName() . ' = ' . $display_value;
-                }
-                else {
-                    $temp_arg .= '$' . $param->getName();
-                }
-
-                $args[] = $temp_arg;
-
-                unset ($temp_arg);
-            }
-
-            $functions_list[] = ['comment' => $doc_comment, 'function' => $func . '(' . implode(', ', $args) . ')'];
-        }
-
-        return new Scope($functions_list);
     }
 }
