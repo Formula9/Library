@@ -9,9 +9,6 @@
             "email": "odd.greg@gmail.com"
         }
     ],
-    "repositories"     : [
-        { "type": "vcs", "url": "https://github.com/Formula9/Collections.git" }
-    ],
     "autoload"         : {
         "classmap": [
             "src",
