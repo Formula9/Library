@@ -22,7 +22,6 @@
         }
     },
     "require"          : {
-        "formula9/collections": "0.4.2.x-dev"
     },
     "require-dev"      : {
         "phpunit/phpunit"          : "^5.1@dev",
