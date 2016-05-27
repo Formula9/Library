@@ -223,6 +223,7 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
             ],
             Support::value_class($obj, Arrays::assoc_from_string('one:1, two:2, three:3, four:4'))
         );
+
         # non-object returns null
         /** @noinspection PhpParamsInspection */
         static::assertNull(Support::value_class('not an object', Arrays::assoc_from_string('one:1, two:2, three:3, four:4')));
@@ -281,17 +282,6 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
             Arrays::array_to_numeric_index(Arrays::array_from_string('one two'))
         );
 
-        ### get_array_value_safely($index, $array)
-
-        //static::assertEquals(
-        //    [
-        //        'start' => 'now',
-        //        'end'   => 'then',
-        //    ],
-        //    Arrays::get_array_value_safely('Candy', $this->source_array)
-        //);
-        //static::assertNull(Arrays::get_array_value_safely('does-not-exist', $this->source_array));
-
     }
 
     public function test06_PartSix()
@@ -308,9 +298,6 @@ class ArrayHelpersTest extends \PHPUnit_Framework_TestCase
         static::assertEquals('not found', Arrays::array_get($searchRA, 'record.lazy', 'not found'));
         static::assertEquals($searchRA['record'], Arrays::array_search_and_replace($searchRA, 'record.lazy', 'not found'));
         static::assertEquals(26.58, Arrays::array_get($searchRA, 'record.amount', 'not found'));
-        //static::assertEquals('not found', Arrays::search('not.there', $searchRA, 'not found'));
-
-        //ddump([$resultSearch, $resultGet]);
     }
 
 }
