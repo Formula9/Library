@@ -10,6 +10,8 @@
  * @author  Greg Truesdell <odd.greg@gmail.com>
  */
 
+include_once 'helpers.php';
+
 final class Lib
 {
     use Arrays;
